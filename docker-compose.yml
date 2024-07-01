@@ -1,0 +1,47 @@
+services:
+  primary:
+    container_name: mysql_primary
+    image: mysql:8.0.36
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3307:3306"
+    tty: true
+    command: >
+      bash -c '
+      touch /tmp/mysql.log &&
+      tail -f /tmp/mysql.log &
+      /usr/local/bin/docker-entrypoint.sh mysqld
+      '
+    volumes:
+      - ./primary/conf/my.cnf:/etc/mysql/conf.d/primary.cnf
+      - ./primary/entrypoint:/docker-entrypoint-initdb.d
+      - db-data-primary:/var/lib/mysql
+    restart: always
+
+  replica:
+    container_name: mysql_replica
+    image: mysql:8.0.36
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      SOURCE_MYSQL_HOST: primary
+      SOURCE_MYSQL_USER: root
+      SOURCE_MYSQL_PASSWORD: password
+    ports:
+      - "3308:3306"
+    tty: true
+    command: >
+      bash -c '
+      touch /tmp/mysql.log &&
+      tail -f /tmp/mysql.log &
+      /usr/local/bin/docker-entrypoint.sh mysqld
+      '
+    volumes:
+      - ./replica/conf/my.cnf:/etc/mysql/conf.d/replica.cnf
+      - ./replica/entrypoint:/docker-entrypoint-initdb.d
+      - db-data-replica:/var/lib/mysql
+    restart: always
+
+volumes:
+  db-data-primary:
+  db-data-replica:
