@@ -11,7 +11,11 @@ DockerでMySQL8.0のレプリケーション環境を構築するためのリポ
 
 ```sh
 docker compose up
+```
 
+クライアントの接続↓
+
+```sh
 # プライマリへの接続
 docker exec -it mysql_primary mysql -uroot -ppassword
 
